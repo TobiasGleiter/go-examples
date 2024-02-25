@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"fmt"
 	"net/http"
 	"html/template"
 	"regexp"
@@ -38,6 +39,7 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
         http.Redirect(w, r, "/edit/"+title, http.StatusFound)
         return
     }
+
     renderTemplate(w, "./tmpl/view", p)
 }
 
@@ -77,6 +79,8 @@ func main() {
     http.HandleFunc("/view/", makeHandler(viewHandler))
     http.HandleFunc("/edit/", makeHandler(editHandler))
     http.HandleFunc("/save/", makeHandler(saveHandler))
+
+	fmt.Println("Server is running on port 8080")
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }

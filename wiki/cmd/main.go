@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"html/template"
 	"regexp"
+	
 )
 
 type Page struct {
@@ -31,6 +32,36 @@ func loadPage(title string) (*Page, error) {
 func renderTemplate(w http.ResponseWriter, tmpl string, p *Page) {
     t, _ := template.ParseFiles(tmpl + ".html")
     t.Execute(w, p)
+}
+
+var pgs []string
+
+func pagesHandler(w http.ResponseWriter, r *http.Request) {
+	folder := "./data/"
+
+	dir, err := os.Open(folder)
+	if err != nil {
+        fmt.Println("Error opening directory:", err)
+        return
+    }
+    defer dir.Close()
+
+
+	files, err := dir.Readdir(-1)
+    if err != nil {
+        fmt.Println("Error reading directory contents:", err)
+        return
+    }
+
+	pgs := make([]string, 0)
+	for _, file := range files {
+		l := len(file.Name()) - len(".txt")
+		fiNa := file.Name()[:l]
+		pgs = append(pgs, fiNa)
+	}
+
+	t, _ := template.ParseFiles("./tmpl/pages" + ".html")
+    t.Execute(w, pgs)
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
@@ -76,6 +107,7 @@ func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.Hand
 }
 
 func main() {
+	http.HandleFunc("/", pagesHandler)
     http.HandleFunc("/view/", makeHandler(viewHandler))
     http.HandleFunc("/edit/", makeHandler(editHandler))
     http.HandleFunc("/save/", makeHandler(saveHandler))

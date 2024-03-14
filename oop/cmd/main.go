@@ -1,9 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"examples/oop/employee"
 )
 
 func main() {
-	fmt.Println("Hello World!")
+	e := employee.Employee {
+		FirstName: "Tobias",
+		LastName: "Gleiter",
+		TotalLeaves: 30,
+		LeavesTaken: 20,
+	}
+	e.LeavesRemaining()
+
 }

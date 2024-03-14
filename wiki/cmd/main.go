@@ -7,12 +7,16 @@ import (
 	"net/http"
 	"html/template"
 	"regexp"
-	
 )
 
 type Page struct {
 	Title string
 	Body []byte
+}
+
+func (p *Page) Save() error {
+    filename := "./data/" + p.Title + ".txt"
+    return os.WriteFile(filename, p.Body, 0600)
 }
 
 func (p *Page) save() error {

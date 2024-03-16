@@ -17,14 +17,12 @@ type Config struct {
 type MessageHandler struct{}
 
 func (mh *MessageHandler) ConnectAndListen(ctx context.Context, config Config) {
-    // Connect to MQTT broker
     opts := MQTT.NewClientOptions().AddBroker(config.Broker).SetClientID(config.ClientID)
     client := MQTT.NewClient(opts)
     if token := client.Connect(); token.Wait() && token.Error() != nil {
         log.Fatal(token.Error())
     }
 
-    // Subscribe to election topic
     if token := client.Subscribe(config.Topic, 0, mh.messageHandler); token.Wait() && token.Error() != nil {
         log.Fatal(token.Error())
     }
@@ -35,7 +33,15 @@ func (mh *MessageHandler) ConnectAndListen(ctx context.Context, config Config) {
 }
 
 func (mh *MessageHandler) messageHandler(client MQTT.Client, msg MQTT.Message) {
-    // Process incoming election message
-    // Implement election logic here
-    fmt.Printf("Received message: %s\n", msg.Payload())
+    fmt.Printf("Received message: %+v\n", msg)
+}
+
+func (mh *MessageHandler) PublishMessage(client MQTT.Client, topic string, message string) {
+    token := client.Publish(topic, 0, false, message)
+    token.Wait()
+    if token.Error() != nil {
+        log.Println("Error publishing message:", token.Error())
+    } else {
+        fmt.Printf("Published message '%s' to topic '%s'\n", message, topic)
+    }
 }
